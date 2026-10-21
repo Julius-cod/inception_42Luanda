@@ -1,0 +1,16 @@
+# Ignorar o histórico do Git
+.git
+.gitignore
+
+# Ignorar segredos e configurações do host
+secrets/
+*.txt
+.env
+
+# Ignorar documentação
+README.md
+DEV_DOC.md
+USER_DOC.md
+
+# Ignorar lixo do sistema
+.DS_Store

@@ -1,0 +1,161 @@
+name: 'inception'
+
+services:
+    mariadb:
+        container_name: mariadb
+        build: ./requirements/mariadb
+        image: mariadb
+        env_file:
+            - .env
+        secrets:
+            - db_password
+            - db_root_password
+        volumes:
+            - database:/var/lib/mysql
+        networks:
+            - inception-network
+        restart: always
+        healthcheck:
+            test: ["CMD-SHELL", "mariadb-admin ping -h localhost -u root -p$$(cat /run/secrets/db_root_password) --silent"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+            start_period: 30s
+
+    wordpress:
+        container_name: wordpress
+        build: ./requirements/wordpress
+        image: wordpress
+        depends_on:
+            mariadb:
+                condition: service_healthy
+        env_file:
+            - .env
+        secrets:
+            - db_password
+            - wp_admin_password
+            - wp_user_password
+        volumes:
+            - website:/var/www/wordpress
+        networks:
+            - inception-network
+        restart: always
+
+    nginx:
+        container_name: nginx
+        build: ./requirements/nginx/
+        image: nginx
+        depends_on:
+            - wordpress
+        env_file:
+            - .env
+        ports:
+            - "443:443"
+        volumes:
+            - website:/var/www/wordpress
+        networks:
+            - inception-network
+        restart: always
+
+# ─── BONUS ────────────────────────────────────────────────
+    redis:
+        container_name: redis
+        build: ./requirements/bonus/redis/
+        image: redis
+        depends_on:
+            - wordpress
+        networks:
+            - inception-network
+        restart: always
+
+    adminer:
+        container_name: adminer
+        build: ./requirements/bonus/adminer/
+        image: adminer
+        depends_on:
+            mariadb:
+                condition: service_healthy
+        environment:
+            - ADMINER_DEFAULT_SERVER=mariadb
+        networks:
+            - inception-network
+        restart: always
+
+    ftp:
+        container_name: ftp
+        build: ./requirements/bonus/ftp/
+        image: ftp
+        depends_on:
+            - wordpress
+        env_file:
+            - .env
+        secrets:
+            - wp_user_password
+            - ftp_password
+        ports:
+            - "21:21"
+            - "21100-21105:21100-21105"
+        volumes:
+            - website:/var/www/wordpress
+        networks:
+            - inception-network
+        restart: always
+
+    cadvisor:
+        container_name: cadvisor
+        build: ./requirements/bonus/cadvisor/
+        image: cadvisor
+        ports:
+            - "8080:8080"
+        volumes:
+            - /:/rootfs:ro
+            - /var/run:/var/run:ro
+            - /sys:/sys:ro
+            - /var/lib/docker/:/var/lib/docker:ro
+            - /dev/disk/:/dev/disk:ro
+        devices:
+            - /dev/kmsg:/dev/kmsg
+        privileged: true
+        networks:
+            - inception-network
+        restart: always
+    
+    static:
+        container_name: static
+        build: ./requirements/bonus/static/
+        image: static
+        networks:
+            - inception-network
+        restart: always
+
+
+networks:
+    inception-network:
+        name: inception-network
+        driver: bridge
+
+volumes:
+    database:
+        driver: local
+        driver_opts:
+            type: none
+            device: /home/juliados/data/database
+            o: bind
+    website:
+        driver: local
+        driver_opts:
+            type: none
+            device: /home/juliados/data/website
+            o: bind
+
+secrets:
+    db_password:
+        file: ../secrets/db_password.txt
+    db_root_password:
+        file: ../secrets/db_root_password.txt
+    wp_admin_password:
+        file: ../secrets/wp_admin_password.txt
+    wp_user_password:
+        file: ../secrets/wp_user_password.txt
+    ftp_password:
+        file: ../secrets/ftp_password.txt

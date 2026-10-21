@@ -1,0 +1,15 @@
+# Ignorar o histórico do Git (pesado e desnecessário dentro do contentor)
+.git
+.gitignore
+
+# Ignorar segredos e configurações do host (eles entram via volumes/secrets, não no build)
+secrets/
+*.txt
+.env
+.dockerignore
+
+# Ignorar documentação
+README.md
+
+# Ignorar lixo do sistema
+.DS_Store

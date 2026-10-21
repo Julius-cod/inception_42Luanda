@@ -1,0 +1,51 @@
+# ─────────────────────────────────────────────────────────────
+#  INCEPTION — .gitignore
+#  Segredos, credenciais e lixo NUNCA vão para o Git.
+# ─────────────────────────────────────────────────────────────
+
+# ─── Segredos e credenciais (CRÍTICO) ──────────────────────
+secrets/
+.env
+*.env
+!.env.example
+
+# ─── Docker ────────────────────────────────────────────────
+*.log
+docker-compose.override.yml
+
+# ─── Dados persistentes (volumes mapeados) ─────────────────
+data/
+/home/*/data/
+
+generate_secrets.sh
+ftp_conect_info.txt
+
+# ─── Sistema operativo ─────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+*~
+*.bak
+*.tmp
+
+# ─── IDE / Editor ──────────────────────────────────────────
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ─── Python (se aplicável) ─────────────────────────────────
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# ─── Node (se aplicável) ───────────────────────────────────
+node_modules/
+npm-debug.log*
+
+# ─── Build artifacts ───────────────────────────────────────
+*.o
+*.a
+*.so
+*.out
