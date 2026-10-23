@@ -14,7 +14,7 @@ services:
             - database:/var/lib/mysql
         networks:
             - inception-network
-        restart: always
+        restart: unless-stopped
         healthcheck:
             test: ["CMD-SHELL", "mariadb-admin ping -h localhost -u root -p$$(cat /run/secrets/db_root_password) --silent"]
             interval: 10s
@@ -39,7 +39,7 @@ services:
             - website:/var/www/wordpress
         networks:
             - inception-network
-        restart: always
+        restart: unless-stopped
 
     nginx:
         container_name: nginx
@@ -55,7 +55,7 @@ services:
             - website:/var/www/wordpress
         networks:
             - inception-network
-        restart: always
+        restart: unless-stopped
 
 # ─── BONUS ────────────────────────────────────────────────
     redis:
@@ -66,7 +66,7 @@ services:
             - wordpress
         networks:
             - inception-network
-        restart: always
+        restart: unless-stopped
 
     adminer:
         container_name: adminer
@@ -79,7 +79,7 @@ services:
             - ADMINER_DEFAULT_SERVER=mariadb
         networks:
             - inception-network
-        restart: always
+        restart: unless-stopped
 
     ftp:
         container_name: ftp
@@ -99,7 +99,7 @@ services:
             - website:/var/www/wordpress
         networks:
             - inception-network
-        restart: always
+        restart: unless-stopped
 
     cadvisor:
         container_name: cadvisor
@@ -118,7 +118,7 @@ services:
         privileged: true
         networks:
             - inception-network
-        restart: always
+        restart: unless-stopped
     
     static:
         container_name: static
@@ -126,7 +126,7 @@ services:
         image: static
         networks:
             - inception-network
-        restart: always
+        restart: unless-stopped
 
 
 networks:
